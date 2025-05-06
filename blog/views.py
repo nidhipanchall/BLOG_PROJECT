@@ -7,6 +7,10 @@ from django.db.models import Q
 from .models import Post, Comment, Like, Profile
 from .forms import PostForm, CommentForm, ProfileForm
 from django.utils import timezone
+from rest_framework import generics
+from blog.models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 
@@ -38,11 +42,11 @@ def post_create(request):
         form = PostForm()
     return render(request, 'blog/post_form.html', {'form': form})
 
-# Update post
 @login_required
 def update_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if post.author != request.user:
+        messages.error(request, "You do not have permission to edit this post.")
         return redirect('home')
 
     if request.method == 'POST':
@@ -51,12 +55,14 @@ def update_post(request, pk):
             post = form.save(commit=False)
             post.updated_at = timezone.now()
             post.save()
+            messages.success(request, "Post updated successfully!")
             return redirect('post_detail', pk=post.pk)
     else:
         form = PostForm(instance=post)
 
     return render(request, 'blog/post_form.html', {'form': form, 'post': post})
 
+    
 # View post details
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -81,6 +87,12 @@ def post_detail(request, pk):
         'form': form,
         'has_liked': has_liked,
     })
+
+def post_detail(request, pk):
+    raise Exception("Test Error")  # This will raise an exception to test error handling
+    post = get_object_or_404(Post, pk=pk)
+    return render(request, 'blog/post_detail.html', {'post': post})
+
 
 # Delete a post
 @login_required
@@ -197,3 +209,19 @@ def edit_profile(request):
         'form': form,
         'profile': profile,
     })
+
+
+
+# API Views
+class PostListAPIView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]  # Only authenticated users can view posts
+
+class PostDetailAPIView(generics.RetrieveAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+class CommentListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
