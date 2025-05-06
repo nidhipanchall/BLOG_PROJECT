@@ -1,0 +1,256 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .meta {
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .actions a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 15px;
+            font-size: 0.95rem;
+        }
+
+        .actions a:hover {
+            color: #0056b3;
+        }
+
+        .like-btn {
+            background: #ff5f5f;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-top: 10px;
+        }
+
+        .like-btn.liked {
+            background: #4CAF50;
+        }
+
+        .comments {
+            margin-top: 40px;
+        }
+
+        .comment {
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .comment-form textarea,
+        .comment-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .share-buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .share-buttons img {
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+        }
+
+        .share-buttons button {
+            padding: 6px 10px;
+            border: none;
+            background: #6c757d;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .share-buttons button:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .actions a,
+            .like-btn,
+            .btn,
+            .comment,
+            .share-buttons button {
+                font-size: 0.85rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .meta {
+                font-size: 0.8rem;
+            }
+
+            .share-buttons {
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content }}</p>
+
+    {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post Image">
+    {% endif %}
+
+    <p class="meta">By <strong>{{ post.author }}</strong> on {{ post.created_at|date:"M d, Y H:i" }}</p>
+
+    {% if user == post.author %}
+        <div class="actions">
+            <a href="{% url 'post_update' post.pk %}">✏️ Edit</a>
+            <a href="{% url 'post_delete' post.pk %}">🗑️ Delete</a>
+        </div>
+    {% endif %}
+
+    <!-- Like Button -->
+    <div class="actions">
+        <form action="{% url 'like_post' post.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="like-btn {% if user_liked %}liked{% endif %}">
+                {% if user_liked %}
+                    ❤️ Liked
+                {% else %}
+                    ❤️ Like
+                {% endif %}
+            </button>
+        </form>
+        <span>{{ post.likes.count }} Likes</span>
+    </div>
+
+    <!-- Share Buttons -->
+    <div class="share-buttons">
+        <p><strong>Share this post:</strong></p>
+
+        <a href="https://api.whatsapp.com/send?text={{ request.build_absolute_uri }}" target="_blank">
+            <img src="https://img.icons8.com/fluency/24/000000/whatsapp.png" alt="WhatsApp"/>
+        </a>
+        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}" target="_blank">
+            <img src="https://img.icons8.com/fluency/24/000000/twitter.png" alt="Twitter"/>
+        </a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank">
+            <img src="https://img.icons8.com/fluency/24/000000/facebook-new.png" alt="Facebook"/>
+        </a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank">
+            <img src="https://img.icons8.com/fluency/24/linkedin.png" alt="LinkedIn"/>
+        </a>
+        <a href="https://www.reddit.com/submit?url={{ request.build_absolute_uri }}" target="_blank">
+            <img src="https://img.icons8.com/fluency/24/reddit.png" alt="Reddit"/>
+        </a>
+        <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}" target="_blank">
+            <img src="https://img.icons8.com/fluency/24/telegram-app.png" alt="Telegram"/>
+        </a>
+        <a href="mailto:?subject={{ post.title }}&body=Check out this post: {{ request.build_absolute_uri }}" target="_blank">
+            <img src="https://img.icons8.com/fluency/24/apple-mail.png" alt="Email"/>
+        </a>
+        <button onclick="copyToClipboard()">🔗 Copy Link</button>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments">
+        <h3>Comments</h3>
+        {% for comment in comments %}
+            <div class="comment">
+                <strong>{{ comment.user.username }}</strong> • {{ comment.created_at|date:"M d, Y H:i" }}<br>
+                {{ comment.content }}
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+
+        {% if user.is_authenticated %}
+            <form method="POST" class="comment-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn">Add Comment</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Login</a> to add a comment.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function copyToClipboard() {
+        navigator.clipboard.writeText(window.location.href).then(function() {
+            alert("Post link copied to clipboard!");
+        }, function(err) {
+            alert("Failed to copy: ", err);
+        });
+    }
+</script>
+
+</body>
+</html>

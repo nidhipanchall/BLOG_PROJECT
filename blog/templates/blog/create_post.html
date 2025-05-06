@@ -1,0 +1,26 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{% if post %}Update Post{% else %}Create a New Post{% endif %}</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm rounded">
+        {% csrf_token %}
+        
+        <!-- Form Fields -->
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary mt-3">
+            {% if post %}Update{% else %}Create{% endif %} Post
+        </button>
+    </form>
+
+    {% if post %}
+        <!-- Delete Button (only visible if post exists) -->
+        <a href="{% url 'delete_post' post.pk %}" class="btn btn-danger mt-2" onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a>
+    {% endif %}
+</div>
+{% endblock %}

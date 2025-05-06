@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .meta {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .actions a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 10px;
+        }
+
+        .actions a:hover {
+            color: #0056b3;
+        }
+
+        .comments {
+            margin-top: 40px;
+        }
+
+        .comment {
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .comment-form textarea, .comment-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .like-btn {
+            background: #ff5f5f;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .like-btn.liked {
+            background: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content }}</p>
+
+    {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post Image">
+    {% endif %}
+
+    <p class="meta">By <strong>{{ post.author }}</strong> on {{ post.created_at|date:"M d, Y H:i" }}</p>
+
+    {% if user == post.author %}
+        <div class="actions">
+            <a href="{% url 'post_update' post.pk %}">✏️ Edit</a>
+            <a href="{% url 'post_delete' post.pk %}">🗑️ Delete</a>
+        </div>
+    {% endif %}
+
+    <!-- Like Button -->
+    <div class="actions">
+        <form action="{% url 'like_post' post.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="like-btn {% if post.likes.filter(user=user).exists %}liked{% endif %}">
+                {% if post.likes.filter(user=user).exists %}
+                    ❤️ Liked
+                {% else %}
+                    ❤️ Like
+                {% endif %}
+            </button>
+        </form>
+        <span>{{ post.likes.count }} Likes</span> <!-- Display the total number of likes -->
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments">
+        <h3>Comments</h3>
+
+        {% for comment in comments %}
+            <div class="comment">
+                <strong>{{ comment.user.username }}</strong> • {{ comment.created_at|date:"M d, Y H:i" }}<br>
+                {{ comment.content }}
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+
+        {% if user.is_authenticated %}
+            <form method="POST" class="comment-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn">Add Comment</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Login</a> to add a comment.</p>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>

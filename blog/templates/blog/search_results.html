@@ -1,0 +1,25 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Search Results for "{{ query }}"</h2>
+    
+    {% if results %}
+        {% for post in results %}
+            <div class="post" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                <h3><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h3>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post image" style="max-width: 100%; border-radius: 8px; margin: 10px 0;">
+                {% endif %}
+                <p>{{ post.content|truncatewords:30 }}</p>
+                <small>By {{ post.author.username }} | {{ post.created_at|date:"M d, Y" }}</small>
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'post_detail' post.pk %}" class="btn" style="padding: 6px 12px; border-radius: 4px; text-decoration: none; color: #fff; background: #007bff;">Read More</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+</div>
+{% endblock %}
