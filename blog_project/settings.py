@@ -46,10 +46,10 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # Token authentication
+        'rest_framework.authentication.TokenAuthentication',  # Or use SessionAuthentication for session-based authentication
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Ensure users must be logged in
+        'rest_framework.permissions.IsAuthenticated',  # This ensures only authenticated users can access your API
     ],
 }
 # python manage.py drf_create_token Blogg

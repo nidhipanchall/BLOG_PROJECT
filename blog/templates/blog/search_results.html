@@ -2,24 +2,30 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Search Results for "{{ query }}"</h2>
-    
+    <h2 class="mb-4">Search Results for "<strong>{{ query }}</strong>"</h2>
+
     {% if results %}
-        {% for post in results %}
-            <div class="post" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
-                <h3><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h3>
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" alt="Post image" style="max-width: 100%; border-radius: 8px; margin: 10px 0;">
-                {% endif %}
-                <p>{{ post.content|truncatewords:30 }}</p>
-                <small>By {{ post.author.username }} | {{ post.created_at|date:"M d, Y" }}</small>
-                <div style="margin-top: 10px;">
-                    <a href="{% url 'post_detail' post.pk %}" class="btn" style="padding: 6px 12px; border-radius: 4px; text-decoration: none; color: #fff; background: #007bff;">Read More</a>
+        <div class="row">
+            {% for post in results %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" class="card-img-top" alt="Post image" style="object-fit: cover; height: 250px;">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ post.title }}</h5>
+                            <p class="card-text">{{ post.content|truncatewords:25 }}</p>
+                            <p class="text-muted mb-2">By {{ post.author.username }} | {{ post.created_at|date:"M d, Y" }}</p>
+                            <a href="{% url 'post_detail' post.pk %}" class="btn btn-primary mt-auto">Read More</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     {% else %}
-        <p>No results found.</p>
+        <div class="alert alert-warning">
+            No results found for "<strong>{{ query }}</strong>".
+        </div>
     {% endif %}
 </div>
 {% endblock %}

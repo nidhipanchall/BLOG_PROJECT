@@ -1,12 +1,18 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Are you sure you want to delete the post: "{{ post.title }}"?</h2>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url 'post_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h2 class="mb-3 text-danger">Confirm Deletion</h2>
+        <p>Are you sure you want to delete the post: <strong>"{{ object.title }}"</strong>?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mt-4">
+                <button type="submit" class="btn btn-danger">Yes, delete</button>
+                <a href="{% url 'post_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
